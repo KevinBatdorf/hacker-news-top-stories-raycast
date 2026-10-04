@@ -17,7 +17,7 @@ type Input = {
 };
 
 /**
- * Get the latest Hacker News stories that reached the user's minimum points in the past 24 hours — the same list the menu bar shows — each marked read or unread. Stories are ordered newest first by cameIn, when the story reached the user's minimum points; published is when it was posted. Call this before any tool that takes a story id.
+ * Get the current top Hacker News stories, newest first. Use it for any question about Hacker News or its stories: the latest, newest, top or unread ones, what's on HN, or a story by name. These are the stories that reached the user's minimum points in the past 24 hours, the same list as their menu bar. Each story has the id the other tools need, its title, link, points, comment count, when it was posted (published), when it reached the minimum points (cameIn, which sets the order), and whether the user has read it.
  */
 export default async function tool({ status = "all" }: Input) {
   const { points } = getPreferenceValues<Preferences>();

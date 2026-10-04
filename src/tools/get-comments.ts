@@ -25,7 +25,7 @@ function flatten(items: AlgoliaItem[], depth = 0): Comment[] {
 }
 
 /**
- * Get the comments on a Hacker News story, in the order Hacker News ranks the top-level threads. Replies follow the comment they answer, with depth 0 for top-level comments. Long threads are cut short; use search-comments to find something specific. Needs a story id from get-stories, so call get-stories first rather than at the same time.
+ * Get what people on Hacker News are saying about a story: its comments, in the order Hacker News ranks the top-level threads. Replies follow the comment they answer, with depth 0 for top-level comments. Long threads are cut short; use search-comments to find something specific. Needs a story id from get-stories, so call get-stories first rather than at the same time.
  */
 export default async function tool({ id }: Input) {
   assertStoryId(id);

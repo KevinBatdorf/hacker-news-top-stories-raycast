@@ -25,7 +25,7 @@
     {
       "name": "get-stories",
       "title": "Get Stories",
-      "description": "Get the latest Hacker News stories that reached the minimum points, read or unread."
+      "description": "Get the current top Hacker News stories, newest first, with links, points, comments and read state."
     },
     {
       "name": "mark-stories-as-read",
@@ -35,7 +35,7 @@
     {
       "name": "get-comments",
       "title": "Get Comments",
-      "description": "Get the comments on a Hacker News story, top threads first."
+      "description": "Get what people are saying about a Hacker News story, top comment threads first."
     },
     {
       "name": "search-comments",
@@ -45,7 +45,7 @@
     {
       "name": "read-article",
       "title": "Read Article",
-      "description": "Read the article a Hacker News story links to, or the text of an Ask HN post."
+      "description": "Read what a Hacker News story is about: the article it links to, or the text of an Ask HN post."
     }
   ],
   "preferences": [
@@ -95,7 +95,7 @@
     }
   ],
   "ai": {
-    "instructions": "When the user asks about one story (the latest one, the first unread one, or one they name), call get-stories to find it, then call read-article with its id once you have it, and reply with a short summary of the article along with its points, comment count and discussion link. Only list titles and points when the user asks for the list itself. Use get-comments when they ask what people are saying, and search-comments to find something specific in a discussion."
+    "instructions": "Always call get-stories before answering anything about Hacker News. Never answer from memory, and never describe what you are about to do instead of calling the tools. When the user asks about particular stories (the latest one or few, the first unread, or one by name), call read-article for each of them and summarize what each says, with its points and discussion link. Reply with only a list of titles when the user asks for the list itself. Use get-comments for what people are saying about a story, search-comments to find something in a discussion, and mark-stories-as-read only when the user asks to mark stories read."
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",

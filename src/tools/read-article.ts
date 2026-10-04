@@ -62,7 +62,7 @@ function articleText(html: string) {
 }
 
 /**
- * Read the article a Hacker News story links to. For a text post such as Ask HN, returns the post itself. Use get-comments for the discussion. Needs a story id from get-stories, so call get-stories first rather than at the same time.
+ * Read what a Hacker News story is about, to summarize it or answer questions about it. Returns the text of the article it links to, or of the post itself for Ask HN and other text posts. Use get-comments for the discussion. Needs a story id from get-stories, so call get-stories first rather than at the same time.
  */
 export default async function tool({ id }: Input) {
   assertStoryId(id);
