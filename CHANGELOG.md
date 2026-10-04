@@ -1,5 +1,10 @@
 # Hacker News Top Stories Changelog
 
+## [Raycast AI Tools] - {PR_MERGE_DATE}
+
+Adds Raycast AI tools to check the latest stories, read or unread, and mark them as read.
+Adds a preference for whether Raycast AI asks first, marks stories as read automatically, or never marks them.
+
 ## [Add Notifications Support] - 2025-04-28
 
 Adds an option to show native Mac notifications for new stories.
