@@ -89,6 +89,9 @@
       "required": false
     }
   ],
+  "ai": {
+    "instructions": "When the user asks about one story (the latest one, the first unread one, or one they name), call get-stories to find it, then call read-article with its id once you have it, and reply with a short summary of the article along with its points, comment count and discussion link. Only list titles and points when the user asks for the list itself. Use get-comments when they ask what people are saying, and search-comments to find something specific in a discussion."
+  },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
     "@raycast/api": "^2.6.2",
