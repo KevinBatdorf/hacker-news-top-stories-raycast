@@ -20,7 +20,7 @@ type Input = {
  * Get the latest Hacker News stories that reached the user's minimum points in the past 24 hours — the same list the menu bar shows — each marked read or unread. Stories are ordered newest first by cameIn, when the story reached the user's minimum points; published is when it was posted. Call this before any tool that takes a story id.
  */
 export default async function tool({ status = "all" }: Input) {
-  const { points, aiMarkAsRead } = getPreferenceValues<Preferences>();
+  const { points } = getPreferenceValues<Preferences>();
   resetIfPointsChanged(points);
   const { recent } = await refreshStories(points);
 
@@ -41,14 +41,5 @@ export default async function tool({ status = "all" }: Input) {
     }))
     .filter(({ read }) => status === "all" || (status === "read") === read);
 
-  const unreadIds = stories.filter(({ read }) => !read).map(({ id }) => id);
-  return {
-    minimumPoints: Number(points) || 500,
-    stories,
-    ...(aiMarkAsRead !== "never" && unreadIds.length
-      ? {
-          beforeReplying: `Before you write your reply, call mark-stories-as-read with the ids of the unread stories your reply tells the user about (unread ids: ${unreadIds.join(", ")}). Skip it when the reply covers no story, e.g. only a count.`,
-        }
-      : {}),
-  };
+  return { minimumPoints: Number(points) || 500, stories };
 }

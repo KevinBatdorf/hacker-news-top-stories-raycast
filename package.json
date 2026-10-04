@@ -28,11 +28,6 @@
       "description": "Get the latest Hacker News stories that reached the minimum points, read or unread."
     },
     {
-      "name": "mark-stories-as-read",
-      "title": "Mark Stories as Read",
-      "description": "Mark Hacker News stories as read so the menu bar stops showing them as new."
-    },
-    {
       "name": "get-comments",
       "title": "Get Comments",
       "description": "Get the comments on a Hacker News story, top threads first."
@@ -85,25 +80,12 @@
       "required": false
     },
     {
-      "name": "aiMarkAsRead",
+      "name": "markReadByAi",
       "title": "Raycast AI",
-      "description": "Whether Raycast AI marks stories as read. Reading a story's article or comments always marks it unless this is Never; asking first applies when it tells you about several stories.",
-      "type": "dropdown",
-      "data": [
-        {
-          "title": "Ask Before Marking Stories As Read",
-          "value": "ask"
-        },
-        {
-          "title": "Mark Stories As Read Automatically",
-          "value": "auto"
-        },
-        {
-          "title": "Never Mark Stories As Read",
-          "value": "never"
-        }
-      ],
-      "default": "ask",
+      "description": "Mark a story as read when Raycast AI reads its article or comments.",
+      "label": "Mark Stories Raycast AI Reads as Read",
+      "type": "checkbox",
+      "default": true,
       "required": false
     }
   ],
