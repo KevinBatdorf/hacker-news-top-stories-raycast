@@ -6,7 +6,6 @@ import { environment, getPreferenceValues } from "@raycast/api";
 
 const iCloudDrive = path.join(os.homedir(), "Library", "Mobile Documents", "com~apple~CloudDocs");
 const syncFolder = path.join(iCloudDrive, "Raycast Hacker News");
-const resetFile = path.join(syncFolder, "reset.json");
 // Every story in an older file has already left the feed
 const staleAfterMs = 8 * 24 * 60 * 60 * 1000;
 
@@ -63,35 +62,13 @@ export function writeSyncedStories(urls: string[]) {
   }
 }
 
-export function getSyncedResetTime() {
-  if (!isSyncing()) return 0;
-  try {
-    const { at } = JSON.parse(fs.readFileSync(resetFile, "utf8")) as { at?: unknown };
-    return typeof at === "number" && Date.now() - at < staleAfterMs ? at : 0;
-  } catch {
-    return 0;
-  }
-}
-
-// Other Macs clear their own lists when they see the reset time
-export function resetSyncedStories(at: number) {
-  if (!isSyncing()) return;
-  try {
-    fs.mkdirSync(syncFolder, { recursive: true });
-    syncFiles().forEach((file) => fs.rmSync(file));
-    fs.writeFileSync(resetFile, JSON.stringify({ at }));
-  } catch (error) {
-    console.error("Failed to reset read stories in iCloud Drive:", error);
-  }
-}
-
 // A Mac that stops running the extension would otherwise leave its file behind
 export function removeStaleSyncFiles() {
   if (!isSyncing()) return;
   try {
     const now = Date.now();
-    [...syncFiles(), resetFile]
-      .filter((file) => fs.existsSync(file) && now - fs.statSync(file).mtimeMs > staleAfterMs)
+    syncFiles()
+      .filter((file) => now - fs.statSync(file).mtimeMs > staleAfterMs)
       .forEach((file) => fs.rmSync(file));
   } catch {
     // The folder doesn't exist until something is first marked read

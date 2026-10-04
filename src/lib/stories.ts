@@ -1,12 +1,6 @@
 import { Cache } from "@raycast/api";
 import { getStories } from "../hackernews";
-import {
-  getSyncedResetTime,
-  readSyncedStories,
-  removeStaleSyncFiles,
-  resetSyncedStories,
-  writeSyncedStories,
-} from "./icloud-sync";
+import { readSyncedStories, removeStaleSyncFiles, writeSyncedStories } from "./icloud-sync";
 import { Story } from "../types";
 
 // No namespace, so the menu bar and AI tools share one read list
@@ -22,8 +16,6 @@ const notifiedKey = "notified-stories";
 const seenKey = "seen-stories";
 // To cache the points to clear cache when they change
 const prefKey = "preferences";
-// The newest "Mark All As Unread" from any Mac that this Mac has applied
-const resetKey = "last-reset";
 
 const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
 const eightDaysInMs = 8 * twentyFourHoursInMs;
@@ -37,11 +29,6 @@ export function resetIfPointsChanged(points: string) {
 }
 
 function getLocalReadStories() {
-  const resetAt = getSyncedResetTime();
-  if (resetAt > Number(cache.get(resetKey) ?? 0)) {
-    cache.set(resetKey, String(resetAt));
-    cache.set(readKey, "[]");
-  }
   return JSON.parse(cache.get(readKey) ?? "[]") as string[];
 }
 
@@ -56,13 +43,6 @@ export function getReadStories() {
 
 export function markStoriesRead(urls: string[]) {
   saveReadStories(Array.from(new Set([...getLocalReadStories(), ...urls])));
-}
-
-export function markAllStoriesUnread() {
-  const at = Date.now();
-  cache.set(resetKey, String(at));
-  cache.set(readKey, "[]");
-  resetSyncedStories(at);
 }
 
 export function getNotifiedStories() {

@@ -6,7 +6,6 @@ Adds Raycast AI tools to check the latest stories, read or unread, and mark them
 Adds Raycast AI tools to read a story's comments, search comments, and read the linked article (from an open browser tab when there is one).
 Adds a preference for whether Raycast AI asks first, marks stories as read automatically, or never marks them.
 Syncs read stories between your Macs through iCloud Drive. Turn it off with the iCloud Sync preference.
-Adds a Mark All As Unread action, which also resets your other Macs when iCloud Sync is on.
 
 ## [Add Notifications Support] - 2025-04-28
 
