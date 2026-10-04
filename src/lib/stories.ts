@@ -1,5 +1,6 @@
 import { Cache } from "@raycast/api";
 import { getStories } from "../hackernews";
+import { readSyncedStories, writeSyncedStories } from "./icloud-sync";
 import { Story } from "../types";
 
 // No namespace, so the menu bar and AI tools share one read list
@@ -17,6 +18,7 @@ const seenKey = "seen-stories";
 const prefKey = "preferences";
 
 const twentyFourHoursInMs = 24 * 60 * 60 * 1000;
+const eightDaysInMs = 8 * twentyFourHoursInMs;
 
 export type SeenStory = { story: Story; seen: number };
 
@@ -26,14 +28,21 @@ export function resetIfPointsChanged(points: string) {
   cache.set(prefKey, points);
 }
 
+function getLocalReadStories() {
+  return JSON.parse(cache.get(readKey) ?? "[]") as string[];
+}
+
+function saveReadStories(urls: string[]) {
+  cache.set(readKey, JSON.stringify(urls));
+  writeSyncedStories(urls);
+}
+
 export function getReadStories() {
-  return new Set(JSON.parse(cache.get(readKey) ?? "[]") as string[]);
+  return new Set([...getLocalReadStories(), ...readSyncedStories()]);
 }
 
 export function markStoriesRead(urls: string[]) {
-  const readStories = getReadStories();
-  urls.forEach((url) => readStories.add(url));
-  cache.set(readKey, JSON.stringify(Array.from(readStories)));
+  saveReadStories(Array.from(new Set([...getLocalReadStories(), ...urls])));
 }
 
 export function getNotifiedStories() {
@@ -63,8 +72,14 @@ export async function refreshStories(points: string) {
     .filter((story) => !seenUrls.has(story.external_url))
     .map((story) => ({ story, seen: now }));
 
-  const allStoriesSeen = [...seenStories, ...unseenStories].sort((a, b) => b.seen - a.seen);
+  const allStoriesSeen = [...seenStories, ...unseenStories]
+    // A day past the feed's 7-day window, so a dropped story can't return as new
+    .filter(({ seen }) => now - seen < eightDaysInMs)
+    .sort((a, b) => b.seen - a.seen);
   cache.set(seenKey, JSON.stringify(allStoriesSeen));
+
+  const keptUrls = new Set(allStoriesSeen.map(({ story }) => story.external_url));
+  saveReadStories(getLocalReadStories().filter((url) => keptUrls.has(url)));
 
   return {
     recent: getRecentStories(allStoriesSeen),

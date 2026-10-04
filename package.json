@@ -76,6 +76,15 @@
       "required": false
     },
     {
+      "name": "syncWithICloud",
+      "title": "iCloud Sync",
+      "description": "Sync read stories between your Macs through the \"Raycast Hacker News\" folder in iCloud Drive.",
+      "label": "Sync Read Stories with iCloud Drive",
+      "type": "checkbox",
+      "default": true,
+      "required": false
+    },
+    {
       "name": "aiMarkAsRead",
       "title": "Raycast AI",
       "description": "Whether Raycast AI can mark stories as read after it summarizes them.",
