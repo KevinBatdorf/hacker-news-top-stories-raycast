@@ -87,7 +87,7 @@
     {
       "name": "aiMarkAsRead",
       "title": "Raycast AI",
-      "description": "Whether Raycast AI can mark stories as read after it summarizes them.",
+      "description": "Whether Raycast AI marks stories as read. Reading a story's article or comments always marks it unless this is Never; asking first applies when it tells you about several stories.",
       "type": "dropdown",
       "data": [
         {

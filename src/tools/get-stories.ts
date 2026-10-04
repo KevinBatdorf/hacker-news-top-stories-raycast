@@ -3,6 +3,7 @@ import {
   getCommentsFromContent,
   getPointsFromContent,
   getReadStories,
+  getSeenStories,
   refreshStories,
   resetIfPointsChanged,
   storyId,
@@ -16,7 +17,7 @@ type Input = {
 };
 
 /**
- * Get the latest Hacker News stories that reached the user's minimum points in the past 24 hours — the same list the menu bar shows — each marked read or unread.
+ * Get the latest Hacker News stories that reached the user's minimum points in the past 24 hours — the same list the menu bar shows — each marked read or unread. Stories are ordered newest first by cameIn, when the story reached the user's minimum points; published is when it was posted. Call this before any tool that takes a story id.
  */
 export default async function tool({ status = "all" }: Input) {
   const { points, aiMarkAsRead } = getPreferenceValues<Preferences>();
@@ -24,6 +25,7 @@ export default async function tool({ status = "all" }: Input) {
   const { recent } = await refreshStories(points);
 
   const readStories = getReadStories();
+  const cameIn = new Map(getSeenStories().map(({ story, seen }) => [story.external_url, seen]));
   const stories = recent
     .map((story) => ({
       id: storyId(story),
@@ -34,6 +36,7 @@ export default async function tool({ status = "all" }: Input) {
       comments: Number(getCommentsFromContent(story.content_html)) || 0,
       author: story.author.name,
       published: story.date_published,
+      cameIn: new Date(cameIn.get(story.external_url) ?? Date.now()).toISOString(),
       read: readStories.has(story.external_url),
     }))
     .filter(({ read }) => status === "all" || (status === "read") === read);
@@ -44,7 +47,7 @@ export default async function tool({ status = "all" }: Input) {
     stories,
     ...(aiMarkAsRead !== "never" && unreadIds.length
       ? {
-          afterSummarizing: `Once you have summarized the unread stories for the user, call mark-stories-as-read with the ids of the ones you summarized (unread ids: ${unreadIds.join(", ")}).`,
+          beforeReplying: `Before you write your reply, call mark-stories-as-read with the ids of the unread stories your reply tells the user about (unread ids: ${unreadIds.join(", ")}). Skip it when the reply covers no story, e.g. only a count.`,
         }
       : {}),
   };

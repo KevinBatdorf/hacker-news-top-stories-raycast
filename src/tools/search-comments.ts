@@ -1,3 +1,4 @@
+import { assertStoryId } from "../lib/ai";
 import { htmlToText, searchComments, truncate } from "../lib/hn-api";
 
 type Input = {
@@ -15,6 +16,7 @@ type Input = {
  * Search Hacker News comments by keyword, ranked by relevance. Searches one story's discussion when given its id, otherwise all of Hacker News.
  */
 export default async function tool({ query, storyId }: Input) {
+  if (storyId) assertStoryId(storyId);
   const { nbHits, hits } = await searchComments(query, { storyId });
   return {
     totalMatches: nbHits,

@@ -1,6 +1,7 @@
 import { BrowserExtension } from "@raycast/api";
 import { Readability } from "@mozilla/readability";
 import { parseHTML } from "linkedom";
+import { assertStoryId, markOpenedStoryRead } from "../lib/ai";
 import { decodeEntities, getItem, htmlToText, truncate } from "../lib/hn-api";
 
 type Input = {
@@ -61,12 +62,18 @@ function articleText(html: string) {
 }
 
 /**
- * Read the article a Hacker News story links to. For a text post such as Ask HN, returns the post itself. Use get-comments for the discussion.
+ * Read the article a Hacker News story links to. For a text post such as Ask HN, returns the post itself. Use get-comments for the discussion. Needs a story id from get-stories, so call get-stories first rather than at the same time.
  */
 export default async function tool({ id }: Input) {
+  assertStoryId(id);
   const item = await getItem(id);
   if (!item.url) {
-    return { title: item.title, source: "Hacker News post", content: htmlToText(item.text ?? "") };
+    return {
+      title: item.title,
+      markedAsRead: await markOpenedStoryRead(id),
+      source: "Hacker News post",
+      content: htmlToText(item.text ?? ""),
+    };
   }
 
   const fromTab = await readOpenTab(item.url);
@@ -78,6 +85,7 @@ export default async function tool({ id }: Input) {
   }
   return {
     title: item.title,
+    markedAsRead: await markOpenedStoryRead(id),
     url: item.url,
     source: fromTab ? "open browser tab" : "fetched page",
     truncated: content.length > maxLength,

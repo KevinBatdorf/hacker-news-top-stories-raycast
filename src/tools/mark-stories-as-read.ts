@@ -1,5 +1,6 @@
-import { getPreferenceValues, launchCommand, LaunchType, Tool } from "@raycast/api";
-import { getPointsFromContent, getSeenStories, markStoriesRead, storyId } from "../lib/stories";
+import { getPreferenceValues, Tool } from "@raycast/api";
+import { markReadForAi } from "../lib/ai";
+import { getPointsFromContent, getReadStories, getSeenStories, storyId } from "../lib/stories";
 
 type Input = {
   /**
@@ -8,7 +9,7 @@ type Input = {
   ids: string;
 };
 
-function findStories(input: string) {
+function findUnreadStories(input: string) {
   const ids = input
     .split(",")
     .map((id) => id.trim())
@@ -19,13 +20,15 @@ function findStories(input: string) {
   if (missing.length) {
     throw new Error(`No recent story has the id ${missing.join(", ")}. Call get-stories for the current ids.`);
   }
-  return ids.flatMap((id) => seen.get(id) ?? []);
+  const readStories = getReadStories();
+  return ids.flatMap((id) => seen.get(id) ?? []).filter(({ external_url }) => !readStories.has(external_url));
 }
 
 export const confirmation: Tool.Confirmation<Input> = async ({ ids }) => {
   const { aiMarkAsRead } = getPreferenceValues<Preferences>();
   if (aiMarkAsRead !== "ask") return undefined;
-  const stories = findStories(ids);
+  const stories = findUnreadStories(ids);
+  if (!stories.length) return undefined;
   return {
     message: `Mark ${stories.length === 1 ? "this story" : `these ${stories.length} stories`} as read?`,
     info: stories.map((story) => ({
@@ -36,7 +39,7 @@ export const confirmation: Tool.Confirmation<Input> = async ({ ids }) => {
 };
 
 /**
- * Mark Hacker News stories as read so the menu bar stops showing them as new. Only call it after summarizing the stories for the user, or when they ask.
+ * Mark Hacker News stories as read so the menu bar stops showing them as new. Call it before replying, for the unread stories your reply tells the user about, or when they ask.
  */
 export default async function tool({ ids }: Input) {
   const { aiMarkAsRead } = getPreferenceValues<Preferences>();
@@ -45,11 +48,7 @@ export default async function tool({ ids }: Input) {
       "Raycast AI isn't allowed to mark stories as read. You can change this in the extension's preferences.",
     );
   }
-  const stories = findStories(ids);
-  markStoriesRead(stories.map(({ external_url }) => external_url));
-
-  // Otherwise the menu bar icon counts them unread until its next refresh
-  await launchCommand({ name: "view-top-stories", type: LaunchType.Background }).catch(() => undefined);
-
+  const stories = findUnreadStories(ids);
+  if (stories.length) await markReadForAi(stories.map(({ external_url }) => external_url));
   return { markedAsRead: stories.map(({ title }) => title) };
 }

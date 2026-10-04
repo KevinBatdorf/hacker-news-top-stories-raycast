@@ -1,3 +1,4 @@
+import { assertStoryId, markOpenedStoryRead } from "../lib/ai";
 import { AlgoliaItem, getItem, getItemTree, htmlToText, truncate } from "../lib/hn-api";
 
 type Input = {
@@ -24,9 +25,10 @@ function flatten(items: AlgoliaItem[], depth = 0): Comment[] {
 }
 
 /**
- * Get the comments on a Hacker News story, in the order Hacker News ranks the top-level threads. Replies follow the comment they answer, with depth 0 for top-level comments. Long threads are cut short; use search-comments to find something specific.
+ * Get the comments on a Hacker News story, in the order Hacker News ranks the top-level threads. Replies follow the comment they answer, with depth 0 for top-level comments. Long threads are cut short; use search-comments to find something specific. Needs a story id from get-stories, so call get-stories first rather than at the same time.
  */
 export default async function tool({ id }: Input) {
+  assertStoryId(id);
   const [item, tree] = await Promise.all([getItem(id), getItemTree(id)]);
   // The comment tree is in posting order; only the item's kids carry Hacker News's ranking
   const rank = new Map(item.kids?.map((kid, index) => [kid, index]));
@@ -42,6 +44,7 @@ export default async function tool({ id }: Input) {
 
   return {
     title: item.title,
+    markedAsRead: await markOpenedStoryRead(id),
     discussionUrl: `https://news.ycombinator.com/item?id=${item.id}`,
     totalComments: item.descendants ?? comments.length,
     commentsShown: comments.length,
