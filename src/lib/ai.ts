@@ -7,15 +7,17 @@ export function assertStoryId(id: string) {
   }
 }
 
+export async function markReadAndRefresh(urls: string[]) {
+  markStoriesRead(urls);
+  // Otherwise the menu bar icon counts them unread until its next refresh
+  await launchCommand({ name: "view-top-stories", type: LaunchType.Background }).catch(() => undefined);
+}
+
 // Reading one story's article or comments means the user is reading that story
 export async function markOpenedStoryRead(id: string) {
   if (!getPreferenceValues<Preferences>().markReadByAi) return false;
   const story = getSeenStories().find((seen) => storyId(seen.story) === id.trim())?.story;
   if (!story) return false;
-  if (getReadStories().has(story.external_url)) return true;
-
-  markStoriesRead([story.external_url]);
-  // Otherwise the menu bar icon counts it unread until its next refresh
-  await launchCommand({ name: "view-top-stories", type: LaunchType.Background }).catch(() => undefined);
+  if (!getReadStories().has(story.external_url)) await markReadAndRefresh([story.external_url]);
   return true;
 }

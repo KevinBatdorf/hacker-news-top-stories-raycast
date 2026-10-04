@@ -28,6 +28,11 @@
       "description": "Get the latest Hacker News stories that reached the minimum points, read or unread."
     },
     {
+      "name": "mark-stories-as-read",
+      "title": "Mark Stories as Read",
+      "description": "Mark Hacker News stories as read when the user asks to."
+    },
+    {
       "name": "get-comments",
       "title": "Get Comments",
       "description": "Get the comments on a Hacker News story, top threads first."
