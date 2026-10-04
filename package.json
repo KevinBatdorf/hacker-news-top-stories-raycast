@@ -31,6 +31,21 @@
       "name": "mark-stories-as-read",
       "title": "Mark Stories as Read",
       "description": "Mark Hacker News stories as read so the menu bar stops showing them as new."
+    },
+    {
+      "name": "get-comments",
+      "title": "Get Comments",
+      "description": "Get the comments on a Hacker News story, top threads first."
+    },
+    {
+      "name": "search-comments",
+      "title": "Search Comments",
+      "description": "Search Hacker News comments by keyword, in one story or across all of Hacker News."
+    },
+    {
+      "name": "read-article",
+      "title": "Read Article",
+      "description": "Read the article a Hacker News story links to, or the text of an Ask HN post."
     }
   ],
   "preferences": [
@@ -84,8 +99,10 @@
     }
   ],
   "dependencies": {
+    "@mozilla/readability": "^0.6.0",
     "@raycast/api": "^2.6.2",
-    "@raycast/utils": "^2.3.2"
+    "@raycast/utils": "^2.3.2",
+    "linkedom": "^0.18.13"
   },
   "devDependencies": {
     "@raycast/eslint-config": "^2.2.0",

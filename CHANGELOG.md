@@ -3,6 +3,7 @@
 ## [Raycast AI Tools] - {PR_MERGE_DATE}
 
 Adds Raycast AI tools to check the latest stories, read or unread, and mark them as read.
+Adds Raycast AI tools to read a story's comments, search comments, and read the linked article (from an open browser tab when there is one).
 Adds a preference for whether Raycast AI asks first, marks stories as read automatically, or never marks them.
 
 ## [Add Notifications Support] - 2025-04-28
