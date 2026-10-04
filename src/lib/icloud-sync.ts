@@ -6,6 +6,9 @@ import { environment, getPreferenceValues } from "@raycast/api";
 
 const iCloudDrive = path.join(os.homedir(), "Library", "Mobile Documents", "com~apple~CloudDocs");
 const syncFolder = path.join(iCloudDrive, "Raycast Hacker News");
+const resetFile = path.join(syncFolder, "reset.json");
+// Every story in an older file has already left the feed
+const staleAfterMs = 8 * 24 * 60 * 60 * 1000;
 
 // Each Mac writes only its own file, so iCloud never has two writers to reconcile
 function deviceFile() {
@@ -21,6 +24,13 @@ function isSyncing() {
   return getPreferenceValues<Preferences>().syncWithICloud && fs.existsSync(iCloudDrive);
 }
 
+function syncFiles() {
+  return fs
+    .readdirSync(syncFolder)
+    .filter((name) => name.startsWith("read-") && name.endsWith(".json"))
+    .map((name) => path.join(syncFolder, name));
+}
+
 function readFile(file: string) {
   try {
     const urls: unknown = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -33,10 +43,7 @@ function readFile(file: string) {
 export function readSyncedStories() {
   if (!isSyncing()) return [];
   try {
-    return fs
-      .readdirSync(syncFolder)
-      .filter((name) => name.startsWith("read-") && name.endsWith(".json"))
-      .flatMap((name) => readFile(path.join(syncFolder, name)));
+    return syncFiles().flatMap(readFile);
   } catch {
     return [];
   }
@@ -53,5 +60,40 @@ export function writeSyncedStories(urls: string[]) {
     fs.writeFileSync(file, data);
   } catch (error) {
     console.error("Failed to sync read stories to iCloud Drive:", error);
+  }
+}
+
+export function getSyncedResetTime() {
+  if (!isSyncing()) return 0;
+  try {
+    const { at } = JSON.parse(fs.readFileSync(resetFile, "utf8")) as { at?: unknown };
+    return typeof at === "number" && Date.now() - at < staleAfterMs ? at : 0;
+  } catch {
+    return 0;
+  }
+}
+
+// Other Macs clear their own lists when they see the reset time
+export function resetSyncedStories(at: number) {
+  if (!isSyncing()) return;
+  try {
+    fs.mkdirSync(syncFolder, { recursive: true });
+    syncFiles().forEach((file) => fs.rmSync(file));
+    fs.writeFileSync(resetFile, JSON.stringify({ at }));
+  } catch (error) {
+    console.error("Failed to reset read stories in iCloud Drive:", error);
+  }
+}
+
+// A Mac that stops running the extension would otherwise leave its file behind
+export function removeStaleSyncFiles() {
+  if (!isSyncing()) return;
+  try {
+    const now = Date.now();
+    [...syncFiles(), resetFile]
+      .filter((file) => fs.existsSync(file) && now - fs.statSync(file).mtimeMs > staleAfterMs)
+      .forEach((file) => fs.rmSync(file));
+  } catch {
+    // The folder doesn't exist until something is first marked read
   }
 }

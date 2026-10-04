@@ -16,6 +16,7 @@ import {
   getNotifiedStories,
   getPointsFromContent,
   getReadStories,
+  markAllStoriesUnread,
   markStoriesRead,
   refreshStories,
   resetIfPointsChanged,
@@ -106,6 +107,18 @@ export default function Command() {
               setStories((prev) => [...prev]);
             }}
             shortcut={{ modifiers: ["cmd", "shift"], key: "m" }}
+          />
+        ) : null}
+        {stories.some(({ external_url }) => readStories.has(external_url)) ? (
+          <MenuBarExtra.Item
+            title="Mark All As Unread"
+            icon={Icon.ArrowCounterClockwise}
+            onAction={() => {
+              readStories.clear();
+              markAllStoriesUnread();
+              setStories((prev) => [...prev]);
+            }}
+            shortcut={{ modifiers: ["cmd", "shift"], key: "u" }}
           />
         ) : null}
         <MenuBarExtra.Item
