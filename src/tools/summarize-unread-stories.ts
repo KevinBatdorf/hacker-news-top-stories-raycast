@@ -12,6 +12,13 @@ import {
 } from "../lib/stories";
 import { Story } from "../types";
 
+type Input = {
+  /**
+   * How many stories the user asked about: 1 for "the latest story", 2 for "the last two". Leave it out when they didn't give a number, to use their setting.
+   */
+  count?: number;
+};
+
 const maxArticleLength = 5_000;
 const maxCommentLength = 800;
 
@@ -41,15 +48,16 @@ async function prepareStory(story: Story) {
 }
 
 /**
- * Get the user's unread Hacker News stories, newest first, ready to summarize: each comes with the text of its article, its top two comments, and links to the article and the discussion. Use it for any question about Hacker News, what's new, or the user's stories. moreUnread is how many unread stories were left out.
+ * Get the user's unread Hacker News stories, newest first, ready to summarize: each comes with the text of its article, its top two comments, and links to the article and the discussion. Use it for any question about Hacker News, what's new, or the user's stories. Every story it returns is marked read, so summarize all of them. moreUnread is how many unread stories were left out.
  */
-export default async function tool() {
+export default async function tool({ count }: Input) {
   const { points, summaryLimit, markReadByAi } = getPreferenceValues<Preferences>();
   resetIfPointsChanged(points);
   const { recent } = await refreshStories(points);
   const readStories = getReadStories();
   const unread = recent.filter(({ external_url }) => !readStories.has(external_url));
-  const batch = unread.slice(0, Number(summaryLimit) || 3);
+  const limit = count ? Math.min(Math.max(Math.trunc(count), 1), 10) : Number(summaryLimit) || 3;
+  const batch = unread.slice(0, limit);
 
   const stories = await Promise.all(batch.map(prepareStory));
   if (markReadByAi && batch.length) await markReadAndRefresh(batch.map(({ external_url }) => external_url));
