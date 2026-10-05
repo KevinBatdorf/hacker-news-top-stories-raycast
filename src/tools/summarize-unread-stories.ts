@@ -64,13 +64,10 @@ export default async function tool({ count }: Input) {
   if (markReadByAi && batch.length) await markReadAndRefresh(batch.map(({ external_url }) => external_url));
   const cappedBySetting = limit === perSummary && unread.length > batch.length;
   return {
-    header: batch.length
-      ? `returning latest ${batch.length} unread ${batch.length === 1 ? "story" : "stories"}${cappedBySetting ? " (per extension config)" : ""}`
-      : undefined,
     // The same format in the manifest's AI instructions was ignored in testing
     howToReply:
-      "Start with the header line exactly as given. Then for each story write: its title in bold with its points; a two or three sentence summary of the article (or of the comments when articleError is set); its two top comments, one line each starting with the commenter's name; then its links line exactly as given. After the stories, say how many more are unread when moreUnread is above zero, or that the user is all caught up when there are no stories.",
-    whyThisMany: `This returns at most ${perSummary} stories at a time because of the user's Stories per Summary setting, which they can change in Raycast Settings → Extensions → Hacker News Top Stories. Tell them that if they ask for more at once or ask why they got ${batch.length}.`,
+      "For each story write: its title in bold with its points; a two or three sentence summary of the article (or of the comments when articleError is set); its two top comments, one line each starting with the commenter's name; then its links line exactly as given. After the stories, say how many more are unread when moreUnread is above zero, or that the user is all caught up when there are no stories.",
+    limitNote: `returning latest ${batch.length} unread ${batch.length === 1 ? "story" : "stories"}${cappedBySetting ? " (per extension config)" : ""}. The config is the user's Stories per Summary setting in Raycast Settings → Extensions → Hacker News Top Stories. This is for you, not the reply: mention it only if the user asks why they got this many or wants more at once.`,
     stories,
     moreUnread: unread.length - batch.length,
   };
