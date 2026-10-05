@@ -16,6 +16,7 @@ import {
   getNotifiedStories,
   getPointsFromContent,
   getReadStories,
+  getRecentStories,
   markStoriesRead,
   refreshStories,
   resetIfPointsChanged,
@@ -31,11 +32,11 @@ function getShortcut(index: number) {
 
 export default function Command() {
   const { points, enableNotifications, useStoryIcon } = getPreferenceValues<Preferences>();
+  resetIfPointsChanged(points);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [stories, setStories] = useState<Story[]>([]);
-
-  resetIfPointsChanged(points);
+  // Starting empty shows no stories and the all-read icon until the fetch finishes
+  const [stories, setStories] = useState<Story[]>(() => getRecentStories());
 
   // Memoize cache reads and parse operations
   const readStories = useMemo(() => getReadStories(), []);
