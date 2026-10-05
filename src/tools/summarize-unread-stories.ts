@@ -30,8 +30,10 @@ async function prepareStory(story: Story) {
     title: story.title,
     points: Number(getPointsFromContent(story.content_html)) || undefined,
     commentCount: Number(getCommentsFromContent(story.content_html)) || 0,
-    articleUrl: story.url,
-    discussionUrl: story.external_url,
+    links:
+      story.url === story.external_url
+        ? `[Comments](${story.external_url})`
+        : `[Article](${story.url}) | [Comments](${story.external_url})`,
     article: article.text,
     articleError: article.error,
     topComments: topComments.map((comment) => ({ ...comment, text: truncate(comment.text, maxCommentLength) })),
@@ -51,5 +53,11 @@ export default async function tool() {
 
   const stories = await Promise.all(batch.map(prepareStory));
   if (markReadByAi && batch.length) await markReadAndRefresh(batch.map(({ external_url }) => external_url));
-  return { stories, moreUnread: unread.length - batch.length };
+  return {
+    // The same format in the manifest's AI instructions was ignored in testing
+    howToReply:
+      "For each story write: its title in bold with its points; a two or three sentence summary of the article (or of the comments when articleError is set); its two top comments, one line each starting with the commenter's name; then its links line exactly as given. After the stories, say how many more are unread when moreUnread is above zero, or that the user is all caught up when there are no stories.",
+    stories,
+    moreUnread: unread.length - batch.length,
+  };
 }
