@@ -7,7 +7,7 @@ type Input = {
    */
   query: string;
   /**
-   * The Hacker News id of a story to search within, e.g. from get-stories. Leave it out to search comments across all of Hacker News.
+   * The Hacker News id of a story to search within, e.g. from summarize-unread-stories. Leave it out to search comments across all of Hacker News.
    */
   storyId?: string;
 };

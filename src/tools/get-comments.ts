@@ -3,7 +3,7 @@ import { AlgoliaItem, getItem, getItemTree, htmlToText, truncate } from "../lib/
 
 type Input = {
   /**
-   * The Hacker News id of the story, e.g. from get-stories.
+   * The Hacker News id of the story, e.g. from summarize-unread-stories.
    */
   id: string;
 };
@@ -25,7 +25,7 @@ function flatten(items: AlgoliaItem[], depth = 0): Comment[] {
 }
 
 /**
- * Get what people on Hacker News are saying about a story: its comments, in the order Hacker News ranks the top-level threads. Replies follow the comment they answer, with depth 0 for top-level comments. Long threads are cut short; use search-comments to find something specific. Needs a story id from get-stories, so call get-stories first rather than at the same time.
+ * Get what people on Hacker News are saying about a story: its comments, in the order Hacker News ranks the top-level threads. Replies follow the comment they answer, with depth 0 for top-level comments. Long threads are cut short; use search-comments to find something specific.
  */
 export default async function tool({ id }: Input) {
   assertStoryId(id);

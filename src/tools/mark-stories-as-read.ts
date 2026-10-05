@@ -3,7 +3,7 @@ import { getReadStories, getRecentStories, getSeenStories, storyId } from "../li
 
 type Input = {
   /**
-   * Comma-separated ids of the stories to mark as read, from get-stories, e.g. "41234567, 41234568". Leave it out to mark every story in the list as read.
+   * Comma-separated ids of the stories to mark as read, from summarize-unread-stories, e.g. "41234567, 41234568". Leave it out to mark every unread story as read.
    */
   ids?: string;
 };
@@ -19,7 +19,7 @@ export default async function tool({ ids = "" }: Input) {
   const seen = new Map(getSeenStories().map(({ story }) => [storyId(story), story]));
   const missing = wanted.filter((id) => !seen.has(id));
   if (missing.length) {
-    throw new Error(`No recent story has the id ${missing.join(", ")}. Call get-stories for the current ids.`);
+    throw new Error(`No recent story has the id ${missing.join(", ")}. Use an id from summarize-unread-stories.`);
   }
 
   const readStories = getReadStories();

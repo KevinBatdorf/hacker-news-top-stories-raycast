@@ -2,7 +2,7 @@
 
 A menubar extension to view and track top stories from Hacker News
 
-Ask Raycast AI about the latest stories with `@hacker-news-top-stories`, e.g. "summarize my unread stories" or "what are people saying about the top story?". It can also read the linked article, using the open browser tab when the Raycast browser extension is installed. A story is marked read when Raycast AI reads its article or comments; turn off the **Raycast AI** preference to stop that.
+Ask Raycast AI what's new with `@hacker-news-top-stories`. It summarizes your unread stories a few at a time (set by **Stories per Summary**), each with its top two comments and links to the article and the discussion, and says how many more are unread. It reads articles from the open browser tab when the Raycast browser extension is installed. Stories Raycast AI summarizes or reads are marked read; turn off the **Raycast AI** preference to stop that.
 
 Read stories sync between your Macs through a "Raycast Hacker News" folder in iCloud Drive. Turn off the **iCloud Sync** preference to keep them on each Mac.
 

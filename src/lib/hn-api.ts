@@ -7,6 +7,9 @@ export type HnItem = {
   title?: string;
   url?: string;
   text?: string;
+  by?: string;
+  deleted?: boolean;
+  dead?: boolean;
   kids?: number[];
   descendants?: number;
 };
@@ -44,6 +47,17 @@ export async function getItem(id: string) {
   );
   if (!item) throw new Error(`There's no Hacker News item with the id ${id}.`);
   return item;
+}
+
+export async function getTopComments(item: HnItem, count: number) {
+  const kids = await Promise.all(
+    (item.kids ?? []).slice(0, count + 3).map((kid) => getItem(String(kid)).catch(() => null)),
+  );
+  return kids
+    .flatMap((kid) =>
+      kid?.text && kid.by && !kid.deleted && !kid.dead ? [{ author: kid.by, text: htmlToText(kid.text) }] : [],
+    )
+    .slice(0, count);
 }
 
 export function getItemTree(id: string) {

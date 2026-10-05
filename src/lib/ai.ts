@@ -3,7 +3,7 @@ import { getReadStories, getSeenStories, markStoriesRead, storyId } from "./stor
 
 export function assertStoryId(id: string) {
   if (!/^[1-9]\d*$/.test(id.trim())) {
-    throw new Error(`"${id}" isn't a Hacker News story id. Call get-stories first and use an id from its results.`);
+    throw new Error(`"${id}" isn't a Hacker News story id. Use an id from summarize-unread-stories.`);
   }
 }
 
