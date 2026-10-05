@@ -14,7 +14,7 @@ import { Story } from "../types";
 
 type Input = {
   /**
-   * How many stories the user asked about: 1 for "the latest story", 2 for "the last two". Leave it out when they didn't give a number, to use their setting.
+   * How many stories the user asked about: 1 for "the latest story", 2 for "the last two". Leave it out when they didn't give a number. It can only lower the user's Stories per Summary setting, never raise it.
    */
   count?: number;
 };
@@ -56,15 +56,21 @@ export default async function tool({ count }: Input) {
   const { recent } = await refreshStories(points);
   const readStories = getReadStories();
   const unread = recent.filter(({ external_url }) => !readStories.has(external_url));
-  const limit = count ? Math.min(Math.max(Math.trunc(count), 1), 10) : Number(summaryLimit) || 3;
+  const perSummary = Number(summaryLimit) || 3;
+  const limit = count ? Math.min(Math.max(Math.trunc(count), 1), perSummary) : perSummary;
   const batch = unread.slice(0, limit);
 
   const stories = await Promise.all(batch.map(prepareStory));
   if (markReadByAi && batch.length) await markReadAndRefresh(batch.map(({ external_url }) => external_url));
+  const cappedBySetting = limit === perSummary && unread.length > batch.length;
   return {
+    header: batch.length
+      ? `returning latest ${batch.length} unread ${batch.length === 1 ? "story" : "stories"}${cappedBySetting ? " (per extension config)" : ""}`
+      : undefined,
     // The same format in the manifest's AI instructions was ignored in testing
     howToReply:
-      "For each story write: its title in bold with its points; a two or three sentence summary of the article (or of the comments when articleError is set); its two top comments, one line each starting with the commenter's name; then its links line exactly as given. After the stories, say how many more are unread when moreUnread is above zero, or that the user is all caught up when there are no stories.",
+      "Start with the header line exactly as given. Then for each story write: its title in bold with its points; a two or three sentence summary of the article (or of the comments when articleError is set); its two top comments, one line each starting with the commenter's name; then its links line exactly as given. After the stories, say how many more are unread when moreUnread is above zero, or that the user is all caught up when there are no stories.",
+    whyThisMany: `This returns at most ${perSummary} stories at a time because of the user's Stories per Summary setting, which they can change in Raycast Settings → Extensions → Hacker News Top Stories. Tell them that if they ask for more at once or ask why they got ${batch.length}.`,
     stories,
     moreUnread: unread.length - batch.length,
   };
